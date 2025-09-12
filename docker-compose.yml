@@ -1,0 +1,64 @@
+version: '3.9'
+
+services:
+  # -------------------------
+  # Banco de dados
+  # -------------------------
+  db:
+    image: postgres:15
+    container_name: streampix-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: streampix_user
+      POSTGRES_PASSWORD: 87Y87WEYTF87C7834RYN
+      POSTGRES_DB: streampix_db
+    volumes:
+      - ./streampix-db/data:/var/lib/postgresql/data
+    networks:
+      - streampix-net
+
+  # -------------------------
+  # Backend Spring Boot
+  # -------------------------
+  backend:
+    build:
+      context: ./streampix-backend
+      dockerfile: Dockerfile
+    container_name: streampix-backend
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/streampix_db
+      SPRING_DATASOURCE_USERNAME: streampix_user
+      SPRING_DATASOURCE_PASSWORD: 87Y87WEYTF87C7834RYN
+    depends_on:
+      - db
+    networks:
+      - streampix-net
+
+  # -------------------------
+  # TTS FastAPI
+  # -------------------------
+  tts:
+    build:
+      context: ./streampix-tts
+      dockerfile: Dockerfile
+    container_name: streampix-tts
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - API_KEY_APP=${API_KEY_APP}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+    networks:
+      - streampix-net
+
+# -------------------------
+# Rede interna
+# -------------------------
+networks:
+  streampix-net:
+    driver: bridge
