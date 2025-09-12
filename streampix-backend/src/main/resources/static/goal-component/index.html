@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="goal-style.css"> 
+</head>
+<body>
+  <div class="formGroup">
+    <p id="goal-end" style="text-align: center; color: white;font-weight: 700">Termina em --</p>
+    <div class="progress-bar-goal">
+      <p id="goal-reason">---</p>
+      <div class="bar-goal" id="goal-bar" style="width: 0%;"></div>
+      <p id="goal-progress">R$ 0 / R$ 0</p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+  <script src="goal-script.js"></script>
+</body>
+</html>
