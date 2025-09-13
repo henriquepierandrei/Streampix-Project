@@ -54,7 +54,7 @@ app = FastAPI(title="TTS API")
 class TextRequest(BaseModel):
     uuid: str
     text: str
-    voice_type: str  # "male", "female", "young_male" etc.
+    voice_type: str  # "male", "female", etc.
     rate: str | None = None  # Ex: "+10%", "-5%"
     pitch: str | None = None  # Ex: "+5%", "-3%"
     volume: str | None = None  # Ex: "+0%", "-10%"
@@ -274,7 +274,7 @@ if __name__ == "__main__":
 
     uvicorn.run(
         "main:app",
-        host="127.0.0.1",
+        host="0.0.0.0",
         port=8000,
         reload=True
     )
