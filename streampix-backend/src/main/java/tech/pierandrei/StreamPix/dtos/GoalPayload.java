@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 @JsonInclude(JsonInclude.Include.NON_NULL) // → só inclui no JSON se não for null.
 public record GoalPayload(
         String uuid,
+        @JsonProperty("streamer-id") Long streamerId,
         @JsonProperty("current_balance") BigDecimal currentBalance,      // Saldo Atual
         @JsonProperty("balance_to_achieve") BigDecimal balanceToAchieve,  // Saldo a alcançar
         String reason,               // Objetivo

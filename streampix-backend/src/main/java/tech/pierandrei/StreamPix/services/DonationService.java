@@ -61,8 +61,8 @@ public class DonationService {
      * @param name - Nome do doador
      * @return true se todos os dados estiverem adequados
      */
-    private Boolean validateAllValues(Double amount, String message, String name) {
-        var user = this.streamerRepository.findById(1L).orElseThrow(() -> new InvalidValuesException("User not found"));
+    private Long validateAllValuesAndGetStreamerId(Double amount, String message, String name, String streamerName) {
+        var user = this.streamerRepository.findByStreamerName(streamerName).orElseThrow(() -> new InvalidValuesException("User not found"));
 
         // Formatação do valor mínimo
         String amountFormatted = String.format("%.2f", user.getMinAmount()).replace(".", ",");
@@ -77,7 +77,7 @@ public class DonationService {
         if (name != null && name.length() > user.getMaxCharactersName()) {
             throw new InvalidValuesException("O nome deve conter de 0 a " + user.getMaxCharactersName() + " caracteres.");
         }
-        return true;
+        return user.getId();
     }
 
     /**
@@ -85,10 +85,9 @@ public class DonationService {
      * @return
      * @throws Exception
      */
-    public ShortResponseApiDTO donationService(DonationFullRequestDto dto) throws Exception {
+    public ShortResponseApiDTO donationService(DonationFullRequestDto dto, String streamerName) throws Exception {
         // Valida todos os dados antes
-        validateAllValues(Double.valueOf(dto.amount()), dto.message(), dto.name());
-
+        var streamerId = validateAllValuesAndGetStreamerId(Double.valueOf(dto.amount()), dto.message(), dto.name(), streamerName);
 
         // Agora você passa essa string no payload
         PayloadMercadoPagoDTO payloadMercadoPagoDTO = new PayloadMercadoPagoDTO(
@@ -124,10 +123,6 @@ public class DonationService {
 
         String audioUrl;
         try {
-            String messageRefactored = dto.message().replace("\n", " ")   // remove quebras de linha
-                    .replace("\r", " ")
-                    .replace("\t", " ");
-
             log.debug(">" + dto);
 
             audioUrl = audioService.generateAudio(ownId, dto);
@@ -148,6 +143,8 @@ public class DonationService {
                     StatusDonation.PENDING_PAYMENT,
                     dtoResponse.getPointOfInteraction().getTransactionData().getQrCode()
             );
+            // Adiciona o id do streamer para referenciar
+            newLog.setStreamerId(streamerId);
             this.logDonationsRepository.save(newLog);
             log.debug("Log registered: [ ID ]: " + newLog.getTransactionId());
         }catch (Exception e){

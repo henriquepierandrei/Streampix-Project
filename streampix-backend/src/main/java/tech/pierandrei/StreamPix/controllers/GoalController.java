@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tech.pierandrei.StreamPix.dtos.GoalPayload;
-import tech.pierandrei.StreamPix.exceptions.GoalsException;
 import tech.pierandrei.StreamPix.services.GoalsService;
 import tech.pierandrei.StreamPix.websocket.WebSocketController;
 
@@ -35,9 +34,9 @@ public class GoalController {
     }
 
     @GetMapping("/to-show")
-    public ResponseEntity<?> getGoalToShow(@RequestParam String streamerName) {
+    public ResponseEntity<?> getGoalToShow(@RequestParam Long id) {
         try {
-            var response = goalsService.getGoalToShow(streamerName);
+            var response = goalsService.getGoalToShow(id);
             log.debug("Streamer buscando a meta para exibir.");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -56,9 +55,10 @@ public class GoalController {
         return ResponseEntity.ok(response);
     }
 
+    // Para testes
     @PostMapping("/notify")
     public void notify(@RequestParam String name, @RequestParam double value) {
-        webSocketController.notifyGoalIncrement("958af5c6-44c8-4e8c-91fe-317d2795928f", BigDecimal.valueOf(value));
+        webSocketController.notifyGoalIncrement("UUID-HERE",1L , BigDecimal.valueOf(value));
     }
 
     // ================== PUT ==================

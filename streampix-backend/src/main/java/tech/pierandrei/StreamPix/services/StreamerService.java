@@ -7,14 +7,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import tech.pierandrei.StreamPix.dtos.HttpResponseDefaultDTO;
 import tech.pierandrei.StreamPix.dtos.StreamerResponseDTO;
-import tech.pierandrei.StreamPix.exceptions.InvalidValuesException;
 import tech.pierandrei.StreamPix.exceptions.StreamerNotFoundException;
 import tech.pierandrei.StreamPix.repositories.StreamerRepository;
 import tech.pierandrei.StreamPix.security.JwtUtil;
 import tech.pierandrei.StreamPix.util.VariablesFormatted;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.Locale;
 
 @Service
 public class StreamerService {
@@ -43,6 +39,7 @@ public class StreamerService {
      * @param dto
      */
     public record StreamerDTO(
+            Long id,
             @JsonProperty("streamer_name") String streamerName,
             @JsonProperty("streamer_balance") String streamerBalance,
             @JsonProperty("is_auto_play") Boolean isAutoPlay,
@@ -67,9 +64,8 @@ public class StreamerService {
     public StreamerDTO getStreamerInfo(String token){
         var streamer = jwtUtil.getStreamerWithToken(token);
 
-        DecimalFormat df = new DecimalFormat("#0.00", new DecimalFormatSymbols(new Locale("pt", "BR")));
-
         return new StreamerDTO(
+                streamer.getId(),
                 streamer.getStreamerName(),
                 variablesFormatted.formatDouble(streamer.getStreamerBalance()),
                 streamer.getAutoPlay(),
@@ -139,6 +135,7 @@ public class StreamerService {
 
         // Retorna DTO atualizado
         return new StreamerDTO(
+                streamer.getId(),
                 streamer.getStreamerName(),
                 variablesFormatted.formatDouble(streamer.getStreamerBalance()),
                 streamer.getAutoPlay(),
@@ -173,6 +170,7 @@ public class StreamerService {
         var streamer = streamerRepository.findByStreamerName(streamerName).orElseThrow(() -> new StreamerNotFoundException("Streamer não encontrado!"));
         try {
             return new StreamerDTO(
+                    streamer.getId(),
                     streamer.getStreamerName(),
                     "recycle",
                     false,

@@ -9,12 +9,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import tech.pierandrei.StreamPix.dtos.DonationPayload;
 import tech.pierandrei.StreamPix.dtos.ShortPayloadDTO;
 import tech.pierandrei.StreamPix.entities.StatusDonation;
-import tech.pierandrei.StreamPix.exceptions.GoalsException;
 import tech.pierandrei.StreamPix.exceptions.InvalidValuesException;
-import tech.pierandrei.StreamPix.exceptions.StreamerNotFoundException;
 import tech.pierandrei.StreamPix.repositories.GoalsRepository;
 import tech.pierandrei.StreamPix.repositories.LogDonationsRepository;
 import tech.pierandrei.StreamPix.repositories.StreamerRepository;
@@ -131,20 +128,20 @@ public class WebhookService {
             }
 
             // Notifica o pagamento
-            webSocketController.notifyPayment(String.valueOf(log.getUuid()), true, timeRemainingInSeconds);
+            webSocketController.notifyPayment(String.valueOf(log.getUuid()),true, timeRemainingInSeconds);
 
             // Envia a doação para o frontend processar e exibir, através do WebSocket
-            webSocketController.notifyDonationSuccess(log.getTransactionId(),true, log.getAudioUrl(), response);
+            webSocketController.notifyDonationSuccess(log.getTransactionId(), log.getStreamerId(), true, log.getAudioUrl(), response);
 
             // Saldo do streamer
             var balance = BigDecimal.valueOf(user.getStreamerBalance());
 
             // Incrementa na meta
-            var goal = this.goalsRepository.findByUserId(1L);
-            if (goal.isPresent()) webSocketController.notifyGoalIncrement(String.valueOf(goal.get().getId()), balance.add(BigDecimal.valueOf(log.getAmount())));
+            var goal = this.goalsRepository.findByUserId(log.getStreamerId());
+            if (goal.isPresent()) webSocketController.notifyGoalIncrement(String.valueOf(goal.get().getId()), log.getStreamerId() ,balance.add(BigDecimal.valueOf(log.getAmount())));
 
         };
-        if (log.getStatusDonation().equals(StatusDonation.UNSUCCESSFUL_PAYMENT)) webSocketController.notifyDonationSuccess(log.getTransactionId(), false, log.getAudioUrl(),  response);
+        if (log.getStatusDonation().equals(StatusDonation.UNSUCCESSFUL_PAYMENT)) webSocketController.notifyDonationSuccess(log.getTransactionId(), log.getStreamerId(), false, log.getAudioUrl(),  response);
     }
 
 }

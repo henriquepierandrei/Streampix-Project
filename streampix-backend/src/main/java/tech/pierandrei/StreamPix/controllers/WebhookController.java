@@ -5,8 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tech.pierandrei.StreamPix.services.WebhookService;
-import tech.pierandrei.StreamPix.websocket.WebSocketController;
-
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -16,11 +14,9 @@ import java.util.concurrent.TimeUnit;
 public class WebhookController {
     private static final Logger log = LoggerFactory.getLogger(WebhookController.class);
     private final WebhookService webhookService;
-    private final WebSocketController webSocketController;
 
-    public WebhookController(WebhookService webhookService, WebSocketController webSocketController) {
+    public WebhookController(WebhookService webhookService) {
         this.webhookService = webhookService;
-        this.webSocketController = webSocketController;
     }
 
     /**
@@ -32,7 +28,10 @@ public class WebhookController {
     public ResponseEntity<Void> receive(@RequestBody Map<String, Object> payload) {
         log.debug("Webhook recebido:" + payload);
 
+        @SuppressWarnings("unchecked")
         Map<String, Object> data = (Map<String, Object>) payload.get("data");
+
+    
         var id = data.get("id").toString(); // Esse é o ID do pagamento
         // Processa o webhook com delay de forma assíncrona
         CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS)

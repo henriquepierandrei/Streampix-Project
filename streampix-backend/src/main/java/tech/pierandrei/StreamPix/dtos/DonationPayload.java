@@ -1,5 +1,7 @@
 package tech.pierandrei.StreamPix.dtos;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  *
  * @param id - ID da transação do mercado pago
@@ -8,6 +10,7 @@ package tech.pierandrei.StreamPix.dtos;
  */
 public record DonationPayload(
         String id,
+        @JsonProperty("streamer-id") Long streamerId,
         Boolean isDonated,
         String audioUrl,
         Boolean qrCodeIsDarkTheme,

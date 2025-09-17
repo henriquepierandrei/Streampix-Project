@@ -14,6 +14,8 @@ public class LogDonationsEntity {
     @Id
     private UUID uuid;
 
+    private Long streamerId;
+
     private Double amount;
 
     private String name;
@@ -33,6 +35,15 @@ public class LogDonationsEntity {
     private StatusDonation statusDonation;
 
     // Getters And Setters
+
+    public Long getStreamerId() {
+        return streamerId;
+    }
+
+    public void setStreamerId(Long streamerId) {
+        this.streamerId = streamerId;
+    }
+
     public Double getAmount() {
         return amount;
     }

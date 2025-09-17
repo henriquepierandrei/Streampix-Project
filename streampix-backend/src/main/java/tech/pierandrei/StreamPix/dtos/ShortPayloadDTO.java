@@ -1,6 +1,5 @@
 package tech.pierandrei.StreamPix.dtos;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  *

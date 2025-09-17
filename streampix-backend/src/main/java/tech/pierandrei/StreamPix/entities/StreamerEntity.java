@@ -2,8 +2,6 @@ package tech.pierandrei.StreamPix.entities;
 
 import jakarta.persistence.*;
 
-import java.util.UUID;
-
 /**
  * Dados do streamer
  */

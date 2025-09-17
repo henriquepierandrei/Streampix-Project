@@ -1,8 +1,5 @@
 package tech.pierandrei.StreamPix.websocket;
 
-import com.sun.jdi.PrimitiveValue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -20,10 +17,8 @@ import tech.pierandrei.StreamPix.repositories.GoalsRepository;
 import tech.pierandrei.StreamPix.repositories.LogDonationsRepository;
 import tech.pierandrei.StreamPix.repositories.StreamerRepository;
 import tech.pierandrei.StreamPix.util.VariablesFormatted;
-
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -35,11 +30,11 @@ import java.util.concurrent.TimeUnit;
 @Controller
 @RestController
 public class WebSocketController {
-    private static final Logger log = LoggerFactory.getLogger(WebSocketController.class);
     private final LogDonationsRepository logDonationsRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final StreamerRepository streamerRepository;
     private final VariablesFormatted variablesFormatted;
+
     private final GoalsRepository goalsRepository;
     public WebSocketController(LogDonationsRepository logDonationsRepository, SimpMessagingTemplate messagingTemplate, StreamerRepository streamerRepository,
                                VariablesFormatted variablesFormatted, GoalsRepository goalsRepository) {
@@ -49,7 +44,6 @@ public class WebSocketController {
         this.variablesFormatted = variablesFormatted;
         this.goalsRepository = goalsRepository;
     }
-
 
 
     // ============================================================================================================== //
@@ -79,7 +73,7 @@ public class WebSocketController {
         paymentExecutor.scheduleAtFixedRate(this::processPaymentQueue, 0, 500, TimeUnit.MILLISECONDS);
 
         // fila processamento da meta
-        goalExecutor.scheduleAtFixedRate(this::processGoalQueue, 0, 500, TimeUnit.MILLISECONDS); // Precisa mudar o processPayment
+        goalExecutor.scheduleAtFixedRate(this::processGoalQueue, 0, 500, TimeUnit.MILLISECONDS);
     }
 
     // Processa a fila de forma segura para pagamentos
@@ -100,10 +94,11 @@ public class WebSocketController {
         DonationPayload payload;
         while ((payload = donationQueue.poll()) != null) {
             try {
-                var user = streamerRepository.findById(1L)
+                var user = streamerRepository.findById(payload.streamerId())
                         .orElseThrow(() -> new InvalidValuesException("User is null"));
                 if (user.getAutoPlay()) {
-                    messagingTemplate.convertAndSend("/topics/donation", payload);
+                    messagingTemplate.convertAndSend("/topics/donation/" + payload.streamerId(), payload);
+
                 }
             } catch (Exception e) {
                 System.err.println("Erro enviando doação: " + e.getMessage());
@@ -118,7 +113,7 @@ public class WebSocketController {
         while ((goalPayload = goalQueue.poll()) != null) {
             try {
                 // envia apenas para o canal específico
-                messagingTemplate.convertAndSend("/topics/goal/", goalPayload);
+                messagingTemplate.convertAndSend("/topics/goal/" + goalPayload.streamerId(), goalPayload);
             } catch (Exception e) {
                 System.err.println("Erro enviando pagamento: " + e.getMessage());
             }
@@ -136,15 +131,15 @@ public class WebSocketController {
     }
 
     // Adiciona a doação na fila
-    public void notifyDonationSuccess(String id, boolean isDonated, String audioUrl, ShortPayloadDTO dto) {
-        var streamer = getStreamer();
-        DonationPayload payload = new DonationPayload(id, isDonated, audioUrl, streamer.getQrCodeIsDarkTheme(), streamer.getAddMessagesBellow(), streamer.getDonateIsDarkTheme(), dto);
+    public void notifyDonationSuccess(String id, Long streamerId, boolean isDonated, String audioUrl, ShortPayloadDTO dto) {
+        var streamer = getStreamer(streamerId);
+        DonationPayload payload = new DonationPayload(id, streamerId, isDonated, audioUrl, streamer.getQrCodeIsDarkTheme(), streamer.getAddMessagesBellow(), streamer.getDonateIsDarkTheme(), dto);
         donationQueue.add(payload);
     }
 
 
     // Adiciona a meta na fila
-    public void notifyGoalIncrement(String uuid, BigDecimal finalBalance) {
+    public void notifyGoalIncrement(String uuid, Long streamerId, BigDecimal finalBalance) {
         var goal = goalsRepository.findById(UUID.fromString(uuid))
                 .orElseThrow(() -> new GoalsException("Meta não encontrada!"));
 
@@ -164,6 +159,7 @@ public class WebSocketController {
         // Cria payload com os dias restantes
         GoalPayload payload = new GoalPayload(
                 String.valueOf(goal.getId()),
+                streamerId,
                 goal.getCurrentBalance(),
                 goal.getBalanceToAchieve(),
                 goal.getReason(),
@@ -173,21 +169,26 @@ public class WebSocketController {
         goalQueue.add(payload);
     }
 
-    // ============================================================================================================== //
-    private StreamerEntity getStreamer(){
-        return this.streamerRepository.findById(1L).orElseThrow(() -> new StreamerNotFoundException("Streamer não encontrado!"));
+    // ======================================================================================================================================= //
+    private StreamerEntity getStreamer(Long streamerId){
+        return this.streamerRepository.findById(streamerId).orElseThrow(() -> new StreamerNotFoundException("Streamer não encontrado!"));
     }
+
+
     /**
      * Da play novamente na doação através do ID da doação
      * @param uuid - ID para buscar a doação
      */
     @PostMapping("/replay-donation")
     public void replayDonation(@RequestParam String uuid) {
-        var streamer = getStreamer();
         var donation = this.logDonationsRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new DonationNotFoundException("Doação não encontrada!"));
+        var streamer = getStreamer(donation.getStreamerId());
+
+
         if (donation.getStatusDonation().equals(StatusDonation.SUCCESSFUL_PAYMENT)){
             var payload = new DonationPayload(
                     donation.getTransactionId(),
+                    donation.getStreamerId(),
                     true,
                     donation.getAudioUrl(),
                     streamer.getQrCodeIsDarkTheme(),

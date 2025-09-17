@@ -1,10 +1,7 @@
 package tech.pierandrei.StreamPix.services;
 
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import tech.pierandrei.StreamPix.dtos.GoalPayload;
@@ -12,12 +9,10 @@ import tech.pierandrei.StreamPix.dtos.HttpResponseDefaultDTO;
 import tech.pierandrei.StreamPix.entities.GoalsEntity;
 import tech.pierandrei.StreamPix.exceptions.GoalsAlreadyExistsException;
 import tech.pierandrei.StreamPix.exceptions.GoalsException;
-import tech.pierandrei.StreamPix.exceptions.InvalidValuesException;
 import tech.pierandrei.StreamPix.exceptions.StreamerNotFoundException;
 import tech.pierandrei.StreamPix.repositories.GoalsRepository;
 import tech.pierandrei.StreamPix.repositories.StreamerRepository;
 import tech.pierandrei.StreamPix.security.JwtUtil;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -26,7 +21,6 @@ import java.util.UUID;
 @Service
 @Transactional
 public class GoalsService {
-    private static final Logger log = LoggerFactory.getLogger(GoalsService.class);
     private StreamerRepository streamerRepository;
     private final GoalsRepository goalsRepository;
 
@@ -95,6 +89,7 @@ public class GoalsService {
 
         return new GoalPayload(
                 String.valueOf(goal.getId()),
+                streamer.getId(),
                 goal.getCurrentBalance(),
                 goal.getBalanceToAchieve(),
                 goal.getReason(),
@@ -152,8 +147,8 @@ public class GoalsService {
      * @param streamerName - Nome para puxar a meta
      * @return - Retorna os dados da meta
      */
-    public GoalPayload getGoalToShow(String streamerName) {
-        var streamer = streamerRepository.findByStreamerName(streamerName).orElseThrow(() -> new StreamerNotFoundException("Streamer não encontrado!"));
+    public GoalPayload getGoalToShow(Long id) {
+        var streamer = streamerRepository.findById(id).orElseThrow(() -> new StreamerNotFoundException("Streamer não encontrado!"));
 
         var goal = this.goalsRepository.findByUserId(streamer.getId())
                 .orElseThrow(() -> new GoalsException("Meta não encontrada ou foi encerrada!"));
@@ -171,6 +166,7 @@ public class GoalsService {
 
         return new GoalPayload(
                 String.valueOf(goal.getId()),
+                null,
                 goal.getCurrentBalance(),
                 goal.getBalanceToAchieve(),
                 goal.getReason(),

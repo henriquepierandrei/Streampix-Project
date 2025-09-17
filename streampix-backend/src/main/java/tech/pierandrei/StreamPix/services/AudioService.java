@@ -1,6 +1,5 @@
 package tech.pierandrei.StreamPix.services;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +10,6 @@ import org.springframework.web.client.RestTemplate;
 import tech.pierandrei.StreamPix.dtos.DonationFullRequestDto;
 import tech.pierandrei.StreamPix.exceptions.APIVoiceException;
 import tech.pierandrei.StreamPix.exceptions.InvalidValuesException;
-
 import java.util.UUID;
 
 @Service

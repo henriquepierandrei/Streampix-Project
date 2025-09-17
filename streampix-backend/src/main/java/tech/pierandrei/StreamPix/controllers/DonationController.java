@@ -22,8 +22,8 @@ public class DonationController {
      * @throws JsonProcessingException - Caso tenha algum problema no mapeamento do Json
      */
     @PostMapping
-    public ResponseEntity<?> donation(@RequestBody DonationFullRequestDto dto) throws Exception {
-        var response = this.donationService.donationService(dto);
+    public ResponseEntity<?> donation(@RequestBody DonationFullRequestDto dto , @RequestParam(name = "streamer-name") String streamerName) throws Exception {
+        var response = this.donationService.donationService(dto, streamerName);
         return ResponseEntity.ok(response);
     }
 

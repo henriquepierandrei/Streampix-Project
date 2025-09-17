@@ -1,7 +1,6 @@
 package tech.pierandrei.StreamPix.services;
 
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -9,11 +8,9 @@ import org.springframework.stereotype.Service;
 import tech.pierandrei.StreamPix.dtos.LogDonationResponseDTO;
 import tech.pierandrei.StreamPix.entities.LogDonationsEntity;
 import tech.pierandrei.StreamPix.entities.StatusDonation;
-import tech.pierandrei.StreamPix.exceptions.InvalidValuesException;
 import tech.pierandrei.StreamPix.repositories.LogDonationsRepository;
 import tech.pierandrei.StreamPix.security.JwtUtil;
 import tech.pierandrei.StreamPix.util.VariablesFormatted;
-
 import jakarta.persistence.criteria.Predicate;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -25,13 +22,12 @@ import java.util.List;
 public class LogDonationService {
     private final LogDonationsRepository logDonationsRepository;
     private final VariablesFormatted variablesFormatted;
-    private final JwtUtil jwtUtil;
+    
 
 
     public LogDonationService(LogDonationsRepository logDonationsRepository, VariablesFormatted variablesFormatted, JwtUtil jwtUtil) {
         this.logDonationsRepository = logDonationsRepository;
         this.variablesFormatted = variablesFormatted;
-        this.jwtUtil = jwtUtil;
     }
 
 
@@ -52,7 +48,7 @@ public class LogDonationService {
             Instant endDate,
             Pageable pageable
     ) {
-        var streamer = jwtUtil.getStreamerWithToken(token);
+        
 
 
         Specification<LogDonationsEntity> spec = (root, query, cb) -> {

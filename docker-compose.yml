@@ -32,6 +32,9 @@ services:
       - "8080:8080"
     env_file:
       - "streampix-backend/.env"
+    # volumes:
+    #   - ./:/app                  # Mapeia seu código para dentro do container
+    #   - ~/.m2:/root/.m2           # Mapeia cache de dependências Maven
     depends_on:
       - db
       - tts

@@ -5,7 +5,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tech.pierandrei.StreamPix.dtos.LogDonationResponseDTO;
-import tech.pierandrei.StreamPix.exceptions.InvalidValuesException;
 import tech.pierandrei.StreamPix.services.LogDonationService;
 
 import java.time.Instant;

@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Conexão STOMP com reconexão automática
     function connectStomp() {
-        const socket = new SockJS('https://streampix-backend.onrender.com/streampix-websocket');
+        const socket = new SockJS('/streampix-websocket');
         const stompClient = Stomp.over(socket);
         stompClient.debug = () => {}; // debug desativado para produção
 
