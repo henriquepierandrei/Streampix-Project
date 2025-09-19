@@ -37,23 +37,6 @@ services:
     #   - ~/.m2:/root/.m2           # Mapeia cache de dependências Maven
     depends_on:
       - db
-      - tts
-    networks:
-      - streampix-net
-
-  # -------------------------
-  # TTS FastAPI
-  # -------------------------
-  tts:
-    build:
-      context: ./streampix-tts
-      dockerfile: Dockerfile
-    container_name: streampix-tts
-    restart: always
-    ports:
-      - "8000:8000"
-    env_file:
-      - "streampix-tts/.env"
     networks:
       - streampix-net
 
