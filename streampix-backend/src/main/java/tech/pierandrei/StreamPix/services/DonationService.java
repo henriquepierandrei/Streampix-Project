@@ -61,8 +61,8 @@ public class DonationService {
      * @param name - Nome do doador
      * @return true se todos os dados estiverem adequados
      */
-    private Long validateAllValuesAndGetStreamerId(Double amount, String message, String name, String streamerName) {
-        var user = this.streamerRepository.findByStreamerName(streamerName).orElseThrow(() -> new InvalidValuesException("User not found"));
+    private Long validateAllValuesAndGetStreamerId(Double amount, String message, String name, String nickname) {
+        var user = this.streamerRepository.findByNickname(nickname).orElseThrow(() -> new InvalidValuesException("User not found"));
 
         // Formatação do valor mínimo
         String amountFormatted = String.format("%.2f", user.getMinAmount()).replace(".", ",");
@@ -85,9 +85,9 @@ public class DonationService {
      * @return
      * @throws Exception
      */
-    public ShortResponseApiDTO donationService(DonationFullRequestDto dto, String streamerName) throws Exception {
+    public ShortResponseApiDTO donationService(DonationFullRequestDto dto, String nickname) throws Exception {
         // Valida todos os dados antes
-        var streamerId = validateAllValuesAndGetStreamerId(Double.valueOf(dto.amount()), dto.message(), dto.name(), streamerName);
+        var streamerId = validateAllValuesAndGetStreamerId(Double.valueOf(dto.amount()), dto.message(), dto.name(), nickname);
 
         // Agora você passa essa string no payload
         PayloadMercadoPagoDTO payloadMercadoPagoDTO = new PayloadMercadoPagoDTO(

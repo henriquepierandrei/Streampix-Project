@@ -13,10 +13,11 @@ public class VariablesFormatted {
      * @param value - Double para formatar
      * @return - Retorna o double formatado
      */
-    public String formatDouble(Double value){
-        NumberFormat nf = NumberFormat.getNumberInstance(new Locale("pt", "BR"));
-        nf.setMaximumFractionDigits(2); // até 2 casas decimais
-        nf.setMinimumFractionDigits(1); // garante pelo menos 1 decimal
-        return nf.format(value);
-    }
+    public String formatDouble(Double value) {
+    NumberFormat nf = NumberFormat.getNumberInstance(new Locale.Builder().setLanguage("pt").setRegion("BR").build());
+    nf.setMaximumFractionDigits(2);
+    nf.setMinimumFractionDigits(1);
+    return nf.format(value);
+}
+
 }

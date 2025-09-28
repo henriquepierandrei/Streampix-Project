@@ -7,8 +7,9 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 import tech.pierandrei.StreamPix.entities.StreamerEntity;
 import tech.pierandrei.StreamPix.exceptions.JwtInvalidException;
-import tech.pierandrei.StreamPix.exceptions.StreamerNotFoundException;
+import tech.pierandrei.StreamPix.exceptions.streamerExceptions.StreamerNotFoundException;
 import tech.pierandrei.StreamPix.repositories.StreamerRepository;
+import tech.pierandrei.StreamPix.security.dtos.AuthResponseDto;
 
 import java.security.Key;
 import java.util.Date;

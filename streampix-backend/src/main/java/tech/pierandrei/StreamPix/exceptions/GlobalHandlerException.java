@@ -5,6 +5,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import tech.pierandrei.StreamPix.exceptions.streamerExceptions.StreamerNotFoundException;
+import tech.pierandrei.StreamPix.exceptions.streamerExceptions.StreamerUnauthorizedException;
+import tech.pierandrei.StreamPix.exceptions.goalsExceptions.GoalsException;
+import tech.pierandrei.StreamPix.exceptions.goalsExceptions.GoalsAlreadyExistsException;
+
 
 import java.time.LocalDateTime;
 
@@ -54,8 +59,7 @@ public class GlobalHandlerException {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 ex.getMessage(),
-                request.getDescription(false).replace("uri=", "")
-        );
+                request.getDescription(false).replace("uri=", ""));
 
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -66,19 +70,18 @@ public class GlobalHandlerException {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.CONFLICT,
                 ex.getMessage(),
-                request.getDescription(false).replace("uri=", "")
-        );
+                request.getDescription(false).replace("uri=", ""));
 
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(StreamerNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleStreamerNotFoundException(StreamerNotFoundException ex, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handleStreamerNotFoundException(StreamerNotFoundException ex,
+            WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.NOT_FOUND,
                 ex.getMessage(),
-                request.getDescription(false).replace("uri=", "")
-        );
+                request.getDescription(false).replace("uri=", ""));
 
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
@@ -88,8 +91,7 @@ public class GlobalHandlerException {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.CONFLICT,
                 ex.getMessage(),
-                request.getDescription(false).replace("uri=", "")
-        );
+                request.getDescription(false).replace("uri=", ""));
 
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
@@ -99,30 +101,29 @@ public class GlobalHandlerException {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.CONFLICT,
                 ex.getMessage(),
-                request.getDescription(false).replace("uri=", "")
-        );
+                request.getDescription(false).replace("uri=", ""));
 
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(DonationNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleDonationNotFoundException(DonationNotFoundException ex, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handleDonationNotFoundException(DonationNotFoundException ex,
+            WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.NOT_FOUND,
                 ex.getMessage(),
-                request.getDescription(false).replace("uri=", "")
-        );
+                request.getDescription(false).replace("uri=", ""));
 
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(InvalidCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidCredentialsException(InvalidCredentialsException ex, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handleInvalidCredentialsException(InvalidCredentialsException ex,
+            WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.BAD_REQUEST,
                 ex.getMessage(),
-                request.getDescription(false).replace("uri=", "")
-        );
+                request.getDescription(false).replace("uri=", ""));
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
@@ -132,8 +133,7 @@ public class GlobalHandlerException {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.UNAUTHORIZED,
                 ex.getMessage(),
-                request.getDescription(false).replace("uri=", "")
-        );
+                request.getDescription(false).replace("uri=", ""));
 
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
@@ -143,21 +143,52 @@ public class GlobalHandlerException {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.NOT_FOUND,
                 ex.getMessage(),
-                request.getDescription(false).replace("uri=", "")
-        );
+                request.getDescription(false).replace("uri=", ""));
 
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(StreamerUnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleStreamerUnauthorizedException(StreamerUnauthorizedException ex,
+            WebRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.UNAUTHORIZED,
+                ex.getMessage(),
+                request.getDescription(false).replace("uri=", ""));
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(SmtpException.class)
+    public ResponseEntity<ErrorResponse> handleSmtpException(SmtpException ex, WebRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getStatus(), // HttpStatus (não .value()!)
+                ex.getMessage(), // String - mensagem
+                request.getDescription(false).replace("uri=", "") // String - path
+        );
+
+        return new ResponseEntity<>(errorResponse, ex.getStatus());
+    }
+
     @ExceptionHandler(GoalsAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleGoalsAlreadyExistsException(GoalsAlreadyExistsException ex, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handleGoalsAlreadyExistsException(GoalsAlreadyExistsException ex,
+            WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.BAD_REQUEST,
                 ex.getMessage(),
-                request.getDescription(false).replace("uri=", "")
-        );
+                request.getDescription(false).replace("uri=", ""));
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(EmailSendException.class)
+    public ResponseEntity<ErrorResponse> handleEmailSendException(EmailSendException ex, WebRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.CONFLICT,
+                ex.getMessage(),
+                request.getDescription(false).replace("uri=", ""));
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
 }

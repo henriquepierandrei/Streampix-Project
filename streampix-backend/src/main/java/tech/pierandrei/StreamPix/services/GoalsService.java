@@ -7,9 +7,9 @@ import org.springframework.stereotype.Service;
 import tech.pierandrei.StreamPix.dtos.GoalPayload;
 import tech.pierandrei.StreamPix.dtos.HttpResponseDefaultDTO;
 import tech.pierandrei.StreamPix.entities.GoalsEntity;
-import tech.pierandrei.StreamPix.exceptions.GoalsAlreadyExistsException;
-import tech.pierandrei.StreamPix.exceptions.GoalsException;
-import tech.pierandrei.StreamPix.exceptions.StreamerNotFoundException;
+import tech.pierandrei.StreamPix.exceptions.goalsExceptions.GoalsAlreadyExistsException;
+import tech.pierandrei.StreamPix.exceptions.goalsExceptions.GoalsException;
+import tech.pierandrei.StreamPix.exceptions.streamerExceptions.StreamerNotFoundException;
 import tech.pierandrei.StreamPix.repositories.GoalsRepository;
 import tech.pierandrei.StreamPix.repositories.StreamerRepository;
 import tech.pierandrei.StreamPix.security.JwtUtil;
@@ -143,8 +143,7 @@ public class GoalsService {
     }
 
     /**
-     * Obter a meta para ser exibida
-     * @param streamerName - Nome para puxar a meta
+     * Obter a meta para ser exibido
      * @return - Retorna os dados da meta
      */
     public GoalPayload getGoalToShow(Long id) {

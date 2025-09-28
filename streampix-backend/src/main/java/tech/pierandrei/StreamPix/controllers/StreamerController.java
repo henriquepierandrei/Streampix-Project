@@ -2,11 +2,13 @@ package tech.pierandrei.StreamPix.controllers;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tech.pierandrei.StreamPix.dtos.StreamerDTO;
 import tech.pierandrei.StreamPix.services.StreamerService;
 
 @RestController
 public class StreamerController {
     private final StreamerService streamerService;
+
 
     public StreamerController(StreamerService streamerService) {
         this.streamerService = streamerService;
@@ -32,7 +34,7 @@ public class StreamerController {
      * @throws Exception
      */
     @PutMapping("/streamer")
-    public ResponseEntity<?> updateStreamer(@RequestHeader("Authorization") String authHeader, @RequestBody StreamerService.StreamerDTO streamerDTO) throws Exception {
+    public ResponseEntity<?> updateStreamer(@RequestHeader("Authorization") String authHeader, @RequestBody StreamerDTO streamerDTO) throws Exception {
         String token = authHeader.replace("Bearer ", "").trim();
         var response = this.streamerService.updateStreamerInfo(token, streamerDTO);
         return ResponseEntity.ok(response);
@@ -41,26 +43,26 @@ public class StreamerController {
 
     /**
      * Obter os dados do usuário para enviar doação
-     * @param streamerName - Nome do Streamer
+     * @param nickname - Nickname do Streamer
      * @return - Retorna os dados do streamer para doar
      * @throws Exception
      */
-    @GetMapping("/{streamerName}")
-    public ResponseEntity<?> getStreamerWithNameToDonate(@PathVariable String streamerName) throws Exception {
-        var response = this.streamerService.getStreamerByName(streamerName);
+    @GetMapping("/{nickname}")
+    public ResponseEntity<?> getStreamerWithNameToDonate(@PathVariable String nickname) throws Exception {
+        var response = this.streamerService.getStreamerByName(nickname);
         return ResponseEntity.ok(response);
     }
 
 
     /**
      * Obtém o tema do qrcode do usuário
-     * @param streamerName - Nome do Streamer
+     * @param nickname - Nickname do Streamer
      * @return - Retorna os dados do qr-code do Streamer
      * @throws Exception
      */
     @GetMapping("/streamer/qrcode")
-    public ResponseEntity<?> getQrCodeTheme(@RequestParam String streamerName) throws Exception {
-        var response = this.streamerService.getQrCodeTheme(streamerName);
+    public ResponseEntity<?> getQrCodeTheme(@RequestParam String nickname) throws Exception {
+        var response = this.streamerService.getQrCodeTheme(nickname);
         return ResponseEntity.ok(response);
     }
 }

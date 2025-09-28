@@ -1,0 +1,30 @@
+# Dockerfile.dev - Para desenvolvimento com hot reload
+FROM eclipse-temurin:21-jdk AS development
+
+# Instala Maven e ferramentas úteis
+RUN apt-get update && apt-get install -y \
+    maven \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copia o pom.xml primeiro para cache de dependências
+COPY pom.xml ./
+RUN mvn dependency:go-offline -B
+
+# NÃO copia src aqui - será mapeado via volume
+
+# Configura Spring DevTools APENAS via variáveis de ambiente
+ENV SPRING_DEVTOOLS_RESTART_ENABLED=true
+ENV SPRING_DEVTOOLS_LIVERELOAD_ENABLED=true
+ENV SPRING_DEVTOOLS_RESTART_POLL_INTERVAL=1000
+ENV SPRING_DEVTOOLS_RESTART_QUIET_PERIOD=400
+
+# REMOVIDO: JAVA_TOOL_OPTIONS para evitar conflito
+
+# Expõe apenas porta da aplicação
+EXPOSE 8080
+
+# Comando padrão (será sobrescrito no docker-compose)
+CMD ["mvn", "spring-boot:run", "-Dspring-boot.run.fork=false"]

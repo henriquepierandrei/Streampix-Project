@@ -13,6 +13,7 @@ import tech.pierandrei.StreamPix.dtos.ShortPayloadDTO;
 import tech.pierandrei.StreamPix.entities.StatusDonation;
 import tech.pierandrei.StreamPix.exceptions.InvalidValuesException;
 import tech.pierandrei.StreamPix.repositories.GoalsRepository;
+import tech.pierandrei.StreamPix.repositories.InfoStreamerRepository;
 import tech.pierandrei.StreamPix.repositories.LogDonationsRepository;
 import tech.pierandrei.StreamPix.repositories.StreamerRepository;
 import tech.pierandrei.StreamPix.util.VariablesFormatted;
@@ -32,13 +33,18 @@ public class WebhookService {
     private final StreamerRepository streamerRepository;
     private final VariablesFormatted variablesFormatted;
     private final GoalsRepository goalsRepository;
+    private final InfoStreamerRepository infoStreamerRepository;
 
-    public WebhookService(LogDonationsRepository logDonationsRepository, WebSocketController webSocketController, StreamerRepository streamerRepository, VariablesFormatted variablesFormatted, GoalsRepository goalsRepository) {
+
+    public WebhookService(LogDonationsRepository logDonationsRepository, WebSocketController webSocketController,
+            StreamerRepository streamerRepository, VariablesFormatted variablesFormatted,
+            GoalsRepository goalsRepository, InfoStreamerRepository infoStreamerRepository) {
         this.logDonationsRepository = logDonationsRepository;
         this.webSocketController = webSocketController;
         this.streamerRepository = streamerRepository;
         this.variablesFormatted = variablesFormatted;
         this.goalsRepository = goalsRepository;
+        this.infoStreamerRepository = infoStreamerRepository;
     }
 
     @Value("${api.mercado.pago.access.token}")
@@ -126,6 +132,11 @@ public class WebhookService {
             if (timeRemainingInSeconds < 0) {
                 timeRemainingInSeconds = 0; // segurança para não retornar número negativo
             }
+
+            var infoStreamer = this.infoStreamerRepository.findById(log.getStreamerId()).orElseThrow(() -> new InvalidValuesException("Info Streamer não encontrado com o ID selecionado: " + log.getStreamerId()));
+            infoStreamer.setTotalAmountReceived(infoStreamer.getTotalAmountReceived() + log.getAmount());
+            infoStreamer.setTotalDonationsReceived(infoStreamer.getTotalDonationsReceived() + 1);
+            infoStreamerRepository.saveAndFlush(infoStreamer);
 
             // Notifica o pagamento
             webSocketController.notifyPayment(String.valueOf(log.getUuid()),true, timeRemainingInSeconds);

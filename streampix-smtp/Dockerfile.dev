@@ -1,0 +1,21 @@
+# -------------------------
+# Base dev com Maven e Java 21
+# -------------------------
+FROM eclipse-temurin:21-jdk AS dev
+
+WORKDIR /app
+
+# Instala Maven caso não tenha
+RUN apt-get update && \
+    apt-get install -y maven && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copia pom.xml e baixa dependências
+COPY pom.xml ./
+RUN mvn dependency:go-offline -B
+
+# Copia o código-fonte
+COPY src ./src
+
+# Roda com hot reload (Spring DevTools)
+CMD ["mvn", "spring-boot:run", "-Dspring-boot.run.fork=false"]

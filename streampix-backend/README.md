@@ -134,6 +134,10 @@ graph TB
 - **Docker** containerização
 
 </td>
+
+  <img src="src/main/resources/static/diagrama-img-email.png" alt="StreamPix Demo" width="700" style="border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+
+
 <td>
 
 - **React 18** + TypeScript 5

@@ -10,9 +10,9 @@ import tech.pierandrei.StreamPix.dtos.ShortPayloadDTO;
 import tech.pierandrei.StreamPix.entities.StatusDonation;
 import tech.pierandrei.StreamPix.entities.StreamerEntity;
 import tech.pierandrei.StreamPix.exceptions.DonationNotFoundException;
-import tech.pierandrei.StreamPix.exceptions.GoalsException;
+import tech.pierandrei.StreamPix.exceptions.goalsExceptions.GoalsException;
 import tech.pierandrei.StreamPix.exceptions.InvalidValuesException;
-import tech.pierandrei.StreamPix.exceptions.StreamerNotFoundException;
+import tech.pierandrei.StreamPix.exceptions.streamerExceptions.StreamerNotFoundException;
 import tech.pierandrei.StreamPix.repositories.GoalsRepository;
 import tech.pierandrei.StreamPix.repositories.LogDonationsRepository;
 import tech.pierandrei.StreamPix.repositories.StreamerRepository;
@@ -34,10 +34,11 @@ public class WebSocketController {
     private final SimpMessagingTemplate messagingTemplate;
     private final StreamerRepository streamerRepository;
     private final VariablesFormatted variablesFormatted;
-
     private final GoalsRepository goalsRepository;
-    public WebSocketController(LogDonationsRepository logDonationsRepository, SimpMessagingTemplate messagingTemplate, StreamerRepository streamerRepository,
-                               VariablesFormatted variablesFormatted, GoalsRepository goalsRepository) {
+
+    public WebSocketController(LogDonationsRepository logDonationsRepository, SimpMessagingTemplate messagingTemplate,
+            StreamerRepository streamerRepository, VariablesFormatted variablesFormatted,
+            GoalsRepository goalsRepository) {
         this.logDonationsRepository = logDonationsRepository;
         this.messagingTemplate = messagingTemplate;
         this.streamerRepository = streamerRepository;
@@ -45,8 +46,8 @@ public class WebSocketController {
         this.goalsRepository = goalsRepository;
     }
 
-
-    // ============================================================================================================== //
+    // ==============================================================================================================
+    // //
     // Fila de doações
     private final Queue<DonationPayload> donationQueue = new ConcurrentLinkedQueue<>();
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
@@ -58,11 +59,11 @@ public class WebSocketController {
     // Fila de Processamento da meta
     private final Queue<GoalPayload> goalQueue = new ConcurrentLinkedQueue<>();
     private final ScheduledExecutorService goalExecutor = Executors.newSingleThreadScheduledExecutor();
-    // ============================================================================================================== //
+    // ==============================================================================================================
+    // //
 
-
-
-    // ============================================================================================================== //
+    // ==============================================================================================================
+    // //
     // Processa a fila a cada 500ms
     @PostConstruct
     public void init() {
@@ -95,7 +96,8 @@ public class WebSocketController {
         while ((payload = donationQueue.poll()) != null) {
             try {
                 var user = streamerRepository.findById(payload.streamerId())
-                        .orElseThrow(() -> new InvalidValuesException("User is null"));
+                        .orElseThrow(() -> new InvalidValuesException("User é nulo"));
+
                 if (user.getAutoPlay()) {
                     messagingTemplate.convertAndSend("/topics/donation/" + payload.streamerId(), payload);
 
@@ -108,7 +110,7 @@ public class WebSocketController {
     }
 
     // Processa a fila de meta segura
-    private void processGoalQueue(){
+    private void processGoalQueue() {
         GoalPayload goalPayload;
         while ((goalPayload = goalQueue.poll()) != null) {
             try {
@@ -119,11 +121,11 @@ public class WebSocketController {
             }
         }
     }
-    // ============================================================================================================== //
+    // ==============================================================================================================
+    // //
 
-
-
-    // ============================================================================================================== //
+    // ==============================================================================================================
+    // //
     // Adiciona a status do pagamento na fila
     public void notifyPayment(String transactionId, boolean isDonated, long timeRemainingSeconds) {
         PaymentPayload payload = new PaymentPayload(transactionId, isDonated, timeRemainingSeconds);
@@ -131,12 +133,13 @@ public class WebSocketController {
     }
 
     // Adiciona a doação na fila
-    public void notifyDonationSuccess(String id, Long streamerId, boolean isDonated, String audioUrl, ShortPayloadDTO dto) {
+    public void notifyDonationSuccess(String id, Long streamerId, boolean isDonated, String audioUrl,
+            ShortPayloadDTO dto) {
         var streamer = getStreamer(streamerId);
-        DonationPayload payload = new DonationPayload(id, streamerId, isDonated, audioUrl, streamer.getQrCodeIsDarkTheme(), streamer.getAddMessagesBellow(), streamer.getDonateIsDarkTheme(), dto);
+        DonationPayload payload = new DonationPayload(id, streamerId, isDonated, audioUrl,
+                streamer.getQrCodeIsDarkTheme(), streamer.getAddMessagesBellow(), streamer.getDonateIsDarkTheme(), dto);
         donationQueue.add(payload);
     }
-
 
     // Adiciona a meta na fila
     public void notifyGoalIncrement(String uuid, Long streamerId, BigDecimal finalBalance) {
@@ -169,23 +172,25 @@ public class WebSocketController {
         goalQueue.add(payload);
     }
 
-    // ======================================================================================================================================= //
-    private StreamerEntity getStreamer(Long streamerId){
-        return this.streamerRepository.findById(streamerId).orElseThrow(() -> new StreamerNotFoundException("Streamer não encontrado!"));
+    // =======================================================================================================================================
+    // //
+    private StreamerEntity getStreamer(Long streamerId) {
+        return this.streamerRepository.findById(streamerId)
+                .orElseThrow(() -> new StreamerNotFoundException("Streamer não encontrado!"));
     }
-
 
     /**
      * Da play novamente na doação através do ID da doação
+     * 
      * @param uuid - ID para buscar a doação
      */
     @PostMapping("/replay-donation")
     public void replayDonation(@RequestParam String uuid) {
-        var donation = this.logDonationsRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new DonationNotFoundException("Doação não encontrada!"));
+        var donation = this.logDonationsRepository.findByUuid(UUID.fromString(uuid))
+                .orElseThrow(() -> new DonationNotFoundException("Doação não encontrada!"));
         var streamer = getStreamer(donation.getStreamerId());
 
-
-        if (donation.getStatusDonation().equals(StatusDonation.SUCCESSFUL_PAYMENT)){
+        if (donation.getStatusDonation().equals(StatusDonation.SUCCESSFUL_PAYMENT)) {
             var payload = new DonationPayload(
                     donation.getTransactionId(),
                     donation.getStreamerId(),
@@ -197,10 +202,9 @@ public class WebSocketController {
                     new ShortPayloadDTO(
                             donation.getName(),
                             donation.getMessage(),
-                            variablesFormatted.formatDouble(donation.getAmount())
-                    )
-            );
+                            variablesFormatted.formatDouble(donation.getAmount())));
             donationQueue.add(payload);
-        };
+        }
+        ;
     }
 }

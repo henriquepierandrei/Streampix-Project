@@ -1,7 +1,8 @@
 package tech.pierandrei.StreamPix.entities;
 
-import jakarta.persistence.*;
+import java.time.Instant;
 
+import jakarta.persistence.*;
 /**
  * Dados do streamer
  */
@@ -12,15 +13,21 @@ public class StreamerEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String streamerName;
+    @Column(unique = true)
+    private String nickname;
+
     private Double streamerBalance;
+
     private Boolean isAutoPlay;
+
     private Double minAmount;
     private Integer maxCharactersName;
     private Integer maxCharactersMessage;
+
+    @Column(unique = true)
     private String email;
 
-    private String password; // 🔑 senha criptografada
+    private String password; // senha criptografada
     private String role;     // Exemplo: "ROLE_STREAMER"
 
     // Tema do QrCode
@@ -30,9 +37,17 @@ public class StreamerEntity {
     // Tema da Doação
     private Boolean donateIsDarkTheme;
 
+    // Conta está validada
+    private Boolean isAccountValid;
 
-    public StreamerEntity(String streamerName, Double streamerBalance, Boolean isAutoPlay, Double minAmount, Integer maxCharactersName, Integer maxCharactersMessage, String email, String password, String role, Boolean qrCodeIsDarkTheme, Boolean addMessagesBellow, Boolean donateIsDarkTheme) {
-        this.streamerName = streamerName;
+
+    private Instant registeredAt;
+
+
+    public StreamerEntity(String nickname, Double streamerBalance, Boolean isAutoPlay, Double minAmount,
+            Integer maxCharactersName, Integer maxCharactersMessage, String email, String password, String role,
+            Boolean qrCodeIsDarkTheme, Boolean addMessagesBellow, Boolean donateIsDarkTheme, Boolean isAccountValid) {
+        this.nickname = nickname;
         this.streamerBalance = streamerBalance;
         this.isAutoPlay = isAutoPlay;
         this.minAmount = minAmount;
@@ -44,7 +59,10 @@ public class StreamerEntity {
         this.qrCodeIsDarkTheme = qrCodeIsDarkTheme;
         this.addMessagesBellow = addMessagesBellow;
         this.donateIsDarkTheme = donateIsDarkTheme;
+        this.isAccountValid = isAccountValid;
     }
+
+    
 
     public StreamerEntity() {
     }
@@ -57,13 +75,7 @@ public class StreamerEntity {
         this.id = id;
     }
 
-    public String getStreamerName() {
-        return streamerName;
-    }
-
-    public void setStreamerName(String streamerName) {
-        this.streamerName = streamerName;
-    }
+    
 
     public Double getStreamerBalance() {
         return streamerBalance;
@@ -152,4 +164,45 @@ public class StreamerEntity {
     public void setDonateIsDarkTheme(Boolean donateIsDarkTheme) {
         this.donateIsDarkTheme = donateIsDarkTheme;
     }
+
+    public Boolean getIsAutoPlay() {
+        return isAutoPlay;
+    }
+
+    public void setIsAutoPlay(Boolean isAutoPlay) {
+        this.isAutoPlay = isAutoPlay;
+    }
+
+    public Boolean getIsAccountValid() {
+        return isAccountValid;
+    }
+
+    public void setIsAccountValid(Boolean isAccountValid) {
+        this.isAccountValid = isAccountValid;
+    }
+
+    public Instant getRegisteredAt() {
+        return registeredAt;
+    }
+
+
+
+    public void setRegisteredAt(Instant registeredAt) {
+        this.registeredAt = registeredAt;
+    }
+
+
+
+    public String getNickname() {
+        return nickname;
+    }
+
+
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    
+    
 }

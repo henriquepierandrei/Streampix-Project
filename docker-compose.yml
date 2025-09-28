@@ -17,28 +17,123 @@ services:
     ports:
       - "5434:5432"
 
-  
+  # -------------------------
+  # Backend Spring Boot - ESCOLHA O MODO
+  # -------------------------
 
-  # -------------------------
-  # Backend Spring Boot
-  # -------------------------
+  # 🔥 MODO DESENVOLVIMENTO (descomente para usar)
+  # Comentar este bloco inteiro quando quiser usar modo BUILD
   backend:
     build:
       context: ./streampix-backend
-      dockerfile: Dockerfile
-    container_name: streampix-backend
-    restart: always
+      dockerfile: Dockerfile.dev
+      target: development
+    container_name: streampix-backend-dev
+    restart: unless-stopped
     ports:
       - "8080:8080"
     env_file:
       - "streampix-backend/.env"
-    # volumes:
-    #   - ./:/app                  # Mapeia seu código para dentro do container
-    #   - ~/.m2:/root/.m2           # Mapeia cache de dependências Maven
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DEVTOOLS_RESTART_ENABLED=true
+    volumes:
+      - ./streampix-backend/src:/app/src # REMOVIDO :ro (read-only)
+      - ./streampix-backend/target:/app/target
+      - ~/.m2:/root/.m2:cached
+      - ./streampix-backend/pom.xml:/app/pom.xml # Mapear pom.xml também
     depends_on:
       - db
+      - smtp-service
     networks:
       - streampix-net
+    command: >
+      sh -c "
+        echo 'Iniciando em MODO DESENVOLVIMENTO...' &&
+        echo 'Hot reload habilitado!' &&
+        echo 'Aguardando 5 segundos para estabilizar...' &&
+        sleep 5 &&
+        mvn spring-boot:run -Dspring-boot.run.fork=false
+      "
+  # 🏗️ MODO BUILD/PRODUÇÃO (descomente para usar)
+  # Comentar este bloco inteiro quando quiser usar modo DEV
+  # backend:
+  #   build:
+  #     context: ./streampix-backend
+  #     dockerfile: Dockerfile        # Seu Dockerfile original (multi-stage)
+  #   container_name: streampix-backend-prod
+  #   restart: always
+  #   ports:
+  #     - "8080:8080"
+  #   env_file:
+  #     - "streampix-backend/.env"
+  #   environment:
+  #     - SPRING_PROFILES_ACTIVE=prod
+  #   depends_on:
+  #     - db
+  #   networks:
+  #     - streampix-net
+  #   command: >
+  #     sh -c "
+  #       echo '🏗️ Rodando em MODO PRODUÇÃO...' &&
+  #       echo '📦 JAR otimizado carregado!' &&
+  #       java -jar app.jar
+  #     "
+
+
+    # -------------------------
+  # Serviço SMTP para emails
+  # -------------------------
+
+  # 🔥 MODO DESENVOLVIMENTO
+  smtp-service:
+    build:
+      context: ./streampix-smtp
+      dockerfile: Dockerfile.dev
+    container_name: streampix-smtp-dev
+    restart: unless-stopped
+    env_file:
+      - "./streampix-smtp/.env"
+    ports:
+      - "8082:8080"  # host:container
+    networks:
+      - streampix-net
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+    volumes:
+      - ./streampix-smtp/src:/app/src
+      - ./streampix-smtp/target:/app/target
+      - ~/.m2:/root/.m2:cached
+      - ./streampix-smtp/pom.xml:/app/pom.xml
+    command: >
+      sh -c "
+        echo 'Iniciando SMTP em MODO DEV...' &&
+        sleep 3 &&
+        mvn spring-boot:run -Dspring-boot.run.fork=false
+      "
+    
+
+  # 🏗️ MODO PRODUÇÃO
+  # smtp-service:
+  #   build:
+  #     context: ./streampix-smtp
+  #     dockerfile: Dockerfile
+  #   container_name: streampix-smtp-prod
+  #   restart: always
+  #   env_file:
+  #     - "./streampix-smtp/.env"
+  #   ports:
+  #     - "1025:1025"
+  #   networks:
+  #     - streampix-net
+  #   environment:
+  #     - SPRING_PROFILES_ACTIVE=prod
+  #   command: >
+  #     sh -c "
+  #       echo 'Rodando SMTP em MODO PRODUÇÃO...' &&
+  #       java -jar app.jar
+  #     "
+
 
 # -------------------------
 # Rede interna
@@ -46,3 +141,10 @@ services:
 networks:
   streampix-net:
     driver: bridge
+
+# -------------------------
+# Volumes para cache (usado apenas no modo dev)
+# -------------------------
+volumes:
+  maven_cache:
+    driver: local
