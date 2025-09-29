@@ -11,7 +11,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import tech.pierandrei.StreamPix.security.dtos.RegisterResponseDTO;
 import tech.pierandrei.StreamPix.emailValidation.EmailSendException;
 import tech.pierandrei.StreamPix.emailValidation.EmailValidationClient;
@@ -218,24 +217,27 @@ public class AuthService {
                 repository.saveAndFlush(streamer);
 
                 return new SmtpResponseDTO(
-                        HttpStatus.OK,
-                        "Email confirmado com sucesso! Conta ativada.",
                         true,
-                        streamer.getId().toString());
+                        response.getMessage() != null ? response.getMessage() : "Email confirmado com sucesso",
+                        token,
+                        streamerId,
+                        streamer.getEmail());
 
             } else {
                 return new SmtpResponseDTO(
-                        HttpStatus.BAD_REQUEST,
-                        response != null ? response.getMessage() : "Token inválido",
                         false,
+                        response != null ? response.getMessage() : "Token inválido ou expirado",
+                        token,
+                        -1,
                         null);
             }
 
         } catch (Exception e) {
             return new SmtpResponseDTO(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Erro ao confirmar email: " + e.getMessage(),
                     false,
+                    "Erro ao confirmar email: " + e.getMessage(),
+                    token,
+                    -1,
                     null);
         }
     }

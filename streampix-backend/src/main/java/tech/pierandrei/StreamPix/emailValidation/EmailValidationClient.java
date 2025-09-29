@@ -13,7 +13,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 
 @Component
@@ -88,26 +88,26 @@ public class EmailValidationClient {
         }
     }
 
-    // CORREÇÃO AQUI: Método para validar token - MUDADO PARA GET
+    // Método para validar token
     public EmailValidationResponseDTO validateToken(String token) {
-        String url = emailValidationBaseUrl + "/api/email-validation/validate?token=" + token;
-
+    String url = emailValidationBaseUrl + "/api/email-validation/validate?token=" + token;
+    try {
+        // Normalmente retorna 200 OK
+        ResponseEntity<EmailValidationResponseDTO> response = restTemplate.getForEntity(
+                url, EmailValidationResponseDTO.class);
+        return response.getBody();
+    } catch (HttpClientErrorException | HttpServerErrorException e) {
+        // Desserializa o JSON do corpo de erro
         try {
-            // MUDANÇA: usar getForEntity ao invés de postForEntity
-            ResponseEntity<EmailValidationResponseDTO> response = restTemplate.getForEntity(
-                    url, EmailValidationResponseDTO.class);
-
-            log.info("Token validado com sucesso: {}", token);
-            return response.getBody();
-
-        } catch (HttpClientErrorException | HttpServerErrorException e) {
-            log.error("Erro HTTP ao validar token: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
-            throw new RuntimeException("Erro ao validar token: " + e.getMessage());
-        } catch (Exception e) {
-            log.error("Erro inesperado ao validar token: {}", e.getMessage());
-            throw new RuntimeException("Erro ao validar token: " + e.getMessage());
+            return new ObjectMapper().readValue(e.getResponseBodyAsString(), EmailValidationResponseDTO.class);
+        } catch (Exception ex) {
+            throw new RuntimeException("Erro ao processar resposta de erro: " + ex.getMessage(), ex);
         }
+    } catch (Exception e) {
+        throw new RuntimeException("Erro inesperado ao validar token: " + e.getMessage(), e);
     }
+}
+
 
     // Método para verificar status do token
     @SuppressWarnings("unchecked")

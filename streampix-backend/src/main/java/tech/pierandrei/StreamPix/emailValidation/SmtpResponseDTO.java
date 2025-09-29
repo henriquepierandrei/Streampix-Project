@@ -1,9 +1,8 @@
 package tech.pierandrei.StreamPix.emailValidation;
-
-import org.springframework.http.HttpStatus;
 public record SmtpResponseDTO (
-    HttpStatus httpStatus,
+    boolean success,
     String message,
-    Boolean sentEmail,
-    String sessionToken
+    String token,
+    String streamerId,
+    String email
 ){}

@@ -16,7 +16,7 @@ public class GoalsEntity {
     private BigDecimal currentBalance;      // Saldo Atual
     private BigDecimal balanceToAchieve;    // Saldo a alcançar
     private String reason;                  // Objetivo
-    private Long userId;                    // A quem pertence
+    private String userId;                    // A quem pertence
     private Instant endAt;                  // Termina em qual dia
 
 
@@ -24,7 +24,7 @@ public class GoalsEntity {
     public GoalsEntity() {
     }
 
-    public GoalsEntity(BigDecimal currentBalance, BigDecimal balanceToAchieve, String reason, Long userId, Instant endAt) {
+    public GoalsEntity(BigDecimal currentBalance, BigDecimal balanceToAchieve, String reason, String userId, Instant endAt) {
         this.currentBalance = currentBalance;
         this.balanceToAchieve = balanceToAchieve;
         this.reason = reason;
@@ -33,11 +33,11 @@ public class GoalsEntity {
     }
 
     // Getters and Setters
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 

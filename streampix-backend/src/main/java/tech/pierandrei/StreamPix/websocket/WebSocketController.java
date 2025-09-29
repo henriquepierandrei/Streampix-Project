@@ -133,7 +133,7 @@ public class WebSocketController {
     }
 
     // Adiciona a doação na fila
-    public void notifyDonationSuccess(String id, Long streamerId, boolean isDonated, String audioUrl,
+    public void notifyDonationSuccess(String id, String streamerId, boolean isDonated, String audioUrl,
             ShortPayloadDTO dto) {
         var streamer = getStreamer(streamerId);
         DonationPayload payload = new DonationPayload(id, streamerId, isDonated, audioUrl,
@@ -174,7 +174,7 @@ public class WebSocketController {
 
     // =======================================================================================================================================
     // //
-    private StreamerEntity getStreamer(Long streamerId) {
+    private StreamerEntity getStreamer(String streamerId) {
         return this.streamerRepository.findById(streamerId)
                 .orElseThrow(() -> new StreamerNotFoundException("Streamer não encontrado!"));
     }

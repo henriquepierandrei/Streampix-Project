@@ -2,6 +2,7 @@ package tech.pierandrei.StreamPix.streamer;
 
 import java.time.Instant;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import jakarta.persistence.*;
 /**
  * Dados do streamer
@@ -10,8 +11,7 @@ import jakarta.persistence.*;
 @Table(name = "streamer_tb")
 public class StreamerEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private String id;
 
     @Column(unique = true)
     private String nickname;
@@ -62,20 +62,32 @@ public class StreamerEntity {
         this.isAccountValid = isAccountValid;
     }
 
+    @PrePersist
+    public void generateId() {
+        if (this.id == null) {
+            this.id = NanoIdUtils.randomNanoId(); // Gera NanoID de 21 caracteres
+        }
+    }
     
 
     public StreamerEntity() {
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    
+    public Boolean getAccountValid() {
+        return isAccountValid;
+    }
+
+    public void setAccountValid(Boolean accountValid) {
+        isAccountValid = accountValid;
+    }
 
     public Double getStreamerBalance() {
         return streamerBalance;

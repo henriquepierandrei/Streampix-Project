@@ -13,7 +13,7 @@ import jakarta.persistence.Table;
 public class InfoStreamerEntity {
     @Id
     @Column(unique = true, nullable = false)
-    private Long streamerId;
+    private String streamerId;
 
     private String fullName;
 
@@ -33,7 +33,7 @@ public class InfoStreamerEntity {
     private Boolean receiveNotification;        // receber notificações
 
 
-    public InfoStreamerEntity(Long streamerId, String fullName, String cpf, String profileImageUrl, Instant lastAccess,
+    public InfoStreamerEntity(String streamerId, String fullName, String cpf, String profileImageUrl, Instant lastAccess,
             LocalDate dateOfRegistration, Integer totalDonationsReceived, Double totalAmountReceived,
             Boolean receiveNotification) {
         this.streamerId = streamerId;
@@ -51,11 +51,11 @@ public class InfoStreamerEntity {
     }
 
     
-    public Long getStreamerId() {
+    public String getStreamerId() {
         return streamerId;
     }
 
-    public void setStreamerId(Long streamerId) {
+    public void setStreamerId(String streamerId) {
         this.streamerId = streamerId;
     }
 

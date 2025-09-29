@@ -4,14 +4,14 @@ public class EmailValidationResponseDTO {
     private String message;
     private String validationType;
     private String email;
-    private long streamerId;
+    private String streamerId;
     private String token;
     private Boolean success;
 
     // Construtores
     public EmailValidationResponseDTO() {}
 
-    public EmailValidationResponseDTO(String message, String validationType, String email, long streamerId, String token, Boolean success) {
+    public EmailValidationResponseDTO(String message, String validationType, String email, String streamerId, String token, Boolean success) {
         this.message = message;
         this.validationType = validationType;
         this.email = email;
@@ -30,8 +30,8 @@ public class EmailValidationResponseDTO {
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
-    public long getStreamerId() { return streamerId; }
-    public void setStreamerId(long streamerId) { this.streamerId = streamerId; }
+    public String getStreamerId() { return streamerId; }
+    public void setStreamerId(String streamerId) { this.streamerId = streamerId; }
 
     public String getToken() { return token; }
     public void setToken(String token) { this.token = token; }

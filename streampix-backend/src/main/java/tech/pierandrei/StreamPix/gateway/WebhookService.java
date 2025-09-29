@@ -117,7 +117,7 @@ public class WebhookService {
         // Se o pagamento for concluído
         if (log.getStatusDonation().equals(LogStatusDonationEnum.SUCCESSFUL_PAYMENT)) {
             // Busca o streamer para verificar os principais dados antes de processar o envio da doação
-            var user = this.streamerRepository.findById(1L).orElseThrow(() -> new InvalidValuesException("User is null"));
+            var user = this.streamerRepository.findById(log.getStreamerId()).orElseThrow(() -> new InvalidValuesException("User is null"));
 
             // Atualiza o saldo do streamer
             user.setStreamerBalance(user.getStreamerBalance() + log.getAmount());

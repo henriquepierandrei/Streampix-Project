@@ -11,7 +11,7 @@ import tech.pierandrei.StreamPix.dtos.ShortPayloadDTO;
  */
 public record DonationPayload(
         String id,
-        @JsonProperty("streamer-id") Long streamerId,
+        @JsonProperty("streamer-id") String streamerId,
         Boolean isDonated,
         String audioUrl,
         Boolean qrCodeIsDarkTheme,

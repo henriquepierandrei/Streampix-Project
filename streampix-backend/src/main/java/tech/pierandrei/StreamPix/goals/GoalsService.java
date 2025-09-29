@@ -142,7 +142,7 @@ public class GoalsService {
      * Obter a meta para ser exibido
      * @return - Retorna os dados da meta
      */
-    public GoalPayload getGoalToShow(Long id) {
+    public GoalPayload getGoalToShow(String id) {
         var streamer = streamerRepository.findById(id).orElseThrow(() -> new StreamerNotFoundException("Streamer não encontrado!"));
 
         var goal = this.goalsRepository.findByUserId(streamer.getId())

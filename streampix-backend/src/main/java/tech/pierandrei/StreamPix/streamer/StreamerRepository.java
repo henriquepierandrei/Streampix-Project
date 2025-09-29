@@ -10,12 +10,12 @@ import java.time.Instant;
 import java.util.Optional;
 
 @Repository
-public interface StreamerRepository extends JpaRepository<StreamerEntity, Long> {
+public interface StreamerRepository extends JpaRepository<StreamerEntity, String> {
     Optional<StreamerEntity> findByEmail(String email);
 
     Optional<StreamerEntity> findByNickname(String nickname);
 
-    Optional<StreamerEntity> findById(Long id);
+    Optional<StreamerEntity> findById(String id);
 
     boolean existsByEmailAndIsAccountValid(String email, Boolean isAccountValid);
 
@@ -29,8 +29,5 @@ public interface StreamerRepository extends JpaRepository<StreamerEntity, Long> 
                 AND s.registeredAt < :threshold
             """)
     void deleteAllInvalidOlderThan(@Param("threshold") Instant threshold);
-
-    
-    
 
 }

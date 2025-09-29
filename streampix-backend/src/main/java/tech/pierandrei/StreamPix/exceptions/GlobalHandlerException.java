@@ -2,10 +2,10 @@ package tech.pierandrei.StreamPix.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
-
 import tech.pierandrei.StreamPix.audio.AudioApiVoiceException;
 import tech.pierandrei.StreamPix.goals.GoalsException;
 import tech.pierandrei.StreamPix.logDonations.DonationNotFoundException;
@@ -16,9 +16,9 @@ import tech.pierandrei.StreamPix.streamer.StreamerUnauthorizedException;
 import tech.pierandrei.StreamPix.emailValidation.EmailSendException;
 import tech.pierandrei.StreamPix.emailValidation.SmtpException;
 import tech.pierandrei.StreamPix.goals.GoalsAlreadyExistsException;
-
-
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 // Classe para capturar exceções em toda a aplicação
 @ControllerAdvice
@@ -69,6 +69,19 @@ public class GlobalHandlerException {
                 request.getDescription(false).replace("uri=", ""));
 
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidEnum(HttpMessageNotReadableException ex) {
+        String message = ex.getMostSpecificCause().getMessage();
+        if (message.contains("Cannot deserialize value of type") && message.contains("from String")) {
+            // Mensagem amigável
+            message = "Valor inválido para o campo enum. Verifique os valores permitidos.";
+        }
+        Map<String, Object> body = new HashMap<>();
+        body.put("success", false);
+        body.put("message", message);
+        return ResponseEntity.badRequest().body(body);
     }
 
     // Exemplo de tratamento específico

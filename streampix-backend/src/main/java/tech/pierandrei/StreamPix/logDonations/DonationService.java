@@ -56,7 +56,7 @@ public class DonationService {
      * @param name - Nome do doador
      * @return true se todos os dados estiverem adequados
      */
-    private Long validateAllValuesAndGetStreamerId(Double amount, String message, String name, String nickname) {
+    private String validateAllValuesAndGetStreamerId(Double amount, String message, String name, String nickname) {
         var user = this.streamerRepository.findByNickname(nickname).orElseThrow(() -> new InvalidValuesException("User not found"));
 
         // Formatação do valor mínimo

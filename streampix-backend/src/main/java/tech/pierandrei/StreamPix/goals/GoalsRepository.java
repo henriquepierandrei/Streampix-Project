@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Repository
 public interface GoalsRepository extends JpaRepository<GoalsEntity, UUID> {
-    Optional<GoalsEntity> findByIdAndUserId(UUID goalsId, Long id);
+    Optional<GoalsEntity> findByIdAndUserId(UUID goalsId, String id);
 
-    Optional<GoalsEntity> findByUserId(long l);
+    Optional<GoalsEntity> findByUserId(String id);
 }

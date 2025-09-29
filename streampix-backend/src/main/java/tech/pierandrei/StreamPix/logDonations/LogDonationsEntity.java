@@ -14,7 +14,7 @@ public class LogDonationsEntity {
     @Id
     private UUID uuid;
 
-    private Long streamerId;
+    private String streamerId;
 
     private Double amount;
 
@@ -36,11 +36,11 @@ public class LogDonationsEntity {
 
     // Getters And Setters
 
-    public Long getStreamerId() {
+    public String getStreamerId() {
         return streamerId;
     }
 
-    public void setStreamerId(Long streamerId) {
+    public void setStreamerId(String streamerId) {
         this.streamerId = streamerId;
     }
 

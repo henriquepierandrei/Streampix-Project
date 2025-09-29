@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import tech.pierandrei.StreamPix.dtos.HttpResponseDefaultDTO;
 
 public record StreamerDTO(
-        @JsonProperty("id") Long id,
+        @JsonProperty("id") String id,
         @JsonProperty("nickname") String nickname,
         @JsonProperty("streamer_balance") String streamerBalance,
         @JsonProperty("email") String email,
