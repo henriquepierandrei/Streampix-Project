@@ -5,10 +5,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
-import tech.pierandrei.StreamPix.exceptions.streamerExceptions.StreamerNotFoundException;
-import tech.pierandrei.StreamPix.exceptions.streamerExceptions.StreamerUnauthorizedException;
-import tech.pierandrei.StreamPix.exceptions.goalsExceptions.GoalsException;
-import tech.pierandrei.StreamPix.exceptions.goalsExceptions.GoalsAlreadyExistsException;
+
+import tech.pierandrei.StreamPix.audio.AudioApiVoiceException;
+import tech.pierandrei.StreamPix.goals.GoalsException;
+import tech.pierandrei.StreamPix.logDonations.DonationNotFoundException;
+import tech.pierandrei.StreamPix.logDonations.PaymentExpiredException;
+import tech.pierandrei.StreamPix.security.JwtInvalidException;
+import tech.pierandrei.StreamPix.streamer.StreamerNotFoundException;
+import tech.pierandrei.StreamPix.streamer.StreamerUnauthorizedException;
+import tech.pierandrei.StreamPix.emailValidation.EmailSendException;
+import tech.pierandrei.StreamPix.emailValidation.SmtpException;
+import tech.pierandrei.StreamPix.goals.GoalsAlreadyExistsException;
 
 
 import java.time.LocalDateTime;
@@ -86,8 +93,8 @@ public class GlobalHandlerException {
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(APIVoiceException.class)
-    public ResponseEntity<ErrorResponse> handleAPIVoiceException(APIVoiceException ex, WebRequest request) {
+    @ExceptionHandler(AudioApiVoiceException.class)
+    public ResponseEntity<ErrorResponse> handleAPIVoiceException(AudioApiVoiceException ex, WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.CONFLICT,
                 ex.getMessage(),

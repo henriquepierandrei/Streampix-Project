@@ -5,11 +5,11 @@ import org.springframework.beans.factory.annotation.Value;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
-import tech.pierandrei.StreamPix.entities.StreamerEntity;
-import tech.pierandrei.StreamPix.exceptions.JwtInvalidException;
-import tech.pierandrei.StreamPix.exceptions.streamerExceptions.StreamerNotFoundException;
-import tech.pierandrei.StreamPix.repositories.StreamerRepository;
-import tech.pierandrei.StreamPix.security.dtos.AuthResponseDto;
+
+import tech.pierandrei.StreamPix.security.dtos.AuthResponseDTO;
+import tech.pierandrei.StreamPix.streamer.StreamerEntity;
+import tech.pierandrei.StreamPix.streamer.StreamerNotFoundException;
+import tech.pierandrei.StreamPix.streamer.StreamerRepository;
 
 import java.security.Key;
 import java.util.Date;
@@ -36,7 +36,7 @@ public class JwtUtil {
      * @param username - username para ser usado como subject do token
      * @return - Retorna os tokens
      */
-    public AuthResponseDto generateTokens(String username) {
+    public AuthResponseDTO generateTokens(String username) {
         long now = System.currentTimeMillis();
 
         // Recupera o streamer do banco para pegar a role
@@ -62,7 +62,7 @@ public class JwtUtil {
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
 
-        return new AuthResponseDto(accessToken, accessExpiration, refreshToken, refreshExpiration);
+        return new AuthResponseDTO(accessToken, accessExpiration, refreshToken, refreshExpiration);
     }
 
 

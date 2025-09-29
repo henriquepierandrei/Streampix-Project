@@ -3,7 +3,8 @@ package tech.pierandrei.StreamPix.security;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import tech.pierandrei.StreamPix.entities.StreamerEntity;
+
+import tech.pierandrei.StreamPix.streamer.StreamerEntity;
 
 import java.util.Collection;
 import java.util.List;

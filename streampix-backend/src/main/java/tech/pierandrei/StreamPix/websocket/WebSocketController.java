@@ -3,19 +3,19 @@ package tech.pierandrei.StreamPix.websocket;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import tech.pierandrei.StreamPix.dtos.DonationPayload;
-import tech.pierandrei.StreamPix.dtos.GoalPayload;
-import tech.pierandrei.StreamPix.dtos.PaymentPayload;
+import tech.pierandrei.StreamPix.goals.GoalPayload;
+import tech.pierandrei.StreamPix.gateway.PaymentPayloadDTO;
 import tech.pierandrei.StreamPix.dtos.ShortPayloadDTO;
-import tech.pierandrei.StreamPix.entities.StatusDonation;
-import tech.pierandrei.StreamPix.entities.StreamerEntity;
-import tech.pierandrei.StreamPix.exceptions.DonationNotFoundException;
-import tech.pierandrei.StreamPix.exceptions.goalsExceptions.GoalsException;
+import tech.pierandrei.StreamPix.logDonations.DonationPayload;
+import tech.pierandrei.StreamPix.logDonations.LogStatusDonationEnum;
+import tech.pierandrei.StreamPix.logDonations.DonationNotFoundException;
+import tech.pierandrei.StreamPix.goals.GoalsException;
+import tech.pierandrei.StreamPix.logDonations.LogDonationsRepository;
 import tech.pierandrei.StreamPix.exceptions.InvalidValuesException;
-import tech.pierandrei.StreamPix.exceptions.streamerExceptions.StreamerNotFoundException;
-import tech.pierandrei.StreamPix.repositories.GoalsRepository;
-import tech.pierandrei.StreamPix.repositories.LogDonationsRepository;
-import tech.pierandrei.StreamPix.repositories.StreamerRepository;
+import tech.pierandrei.StreamPix.goals.GoalsRepository;
+import tech.pierandrei.StreamPix.streamer.StreamerEntity;
+import tech.pierandrei.StreamPix.streamer.StreamerNotFoundException;
+import tech.pierandrei.StreamPix.streamer.StreamerRepository;
 import tech.pierandrei.StreamPix.util.VariablesFormatted;
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
@@ -53,7 +53,7 @@ public class WebSocketController {
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
 
     // Fila de pagamentos específicos
-    private final Queue<PaymentPayload> paymentQueue = new ConcurrentLinkedQueue<>();
+    private final Queue<PaymentPayloadDTO> paymentQueue = new ConcurrentLinkedQueue<>();
     private final ScheduledExecutorService paymentExecutor = Executors.newSingleThreadScheduledExecutor();
 
     // Fila de Processamento da meta
@@ -79,7 +79,7 @@ public class WebSocketController {
 
     // Processa a fila de forma segura para pagamentos
     private void processPaymentQueue() {
-        PaymentPayload payload;
+        PaymentPayloadDTO payload;
         while ((payload = paymentQueue.poll()) != null) {
             try {
                 // envia apenas para o canal específico
@@ -128,7 +128,7 @@ public class WebSocketController {
     // //
     // Adiciona a status do pagamento na fila
     public void notifyPayment(String transactionId, boolean isDonated, long timeRemainingSeconds) {
-        PaymentPayload payload = new PaymentPayload(transactionId, isDonated, timeRemainingSeconds);
+        PaymentPayloadDTO payload = new PaymentPayloadDTO(transactionId, isDonated, timeRemainingSeconds);
         paymentQueue.add(payload);
     }
 
@@ -190,7 +190,7 @@ public class WebSocketController {
                 .orElseThrow(() -> new DonationNotFoundException("Doação não encontrada!"));
         var streamer = getStreamer(donation.getStreamerId());
 
-        if (donation.getStatusDonation().equals(StatusDonation.SUCCESSFUL_PAYMENT)) {
+        if (donation.getStatusDonation().equals(LogStatusDonationEnum.SUCCESSFUL_PAYMENT)) {
             var payload = new DonationPayload(
                     donation.getTransactionId(),
                     donation.getStreamerId(),

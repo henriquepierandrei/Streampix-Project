@@ -4,8 +4,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import tech.pierandrei.StreamPix.entities.StreamerEntity;
-import tech.pierandrei.StreamPix.repositories.StreamerRepository;
+
+import tech.pierandrei.StreamPix.streamer.StreamerEntity;
+import tech.pierandrei.StreamPix.streamer.StreamerRepository;
 
 @Service
 public class StreamerDetailsService implements UserDetailsService {
