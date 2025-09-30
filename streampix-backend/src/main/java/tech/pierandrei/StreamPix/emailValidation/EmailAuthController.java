@@ -27,9 +27,9 @@ public class EmailAuthController {
         this.emailValidationClient = emailValidationClient;
     }
 
-    @PostMapping("/confirm-email")
-    public ResponseEntity<?> confirmEmail(@RequestParam String token) {
-        SmtpResponseDTO result = authService.confirmEmail(token);
+    @GetMapping("/confirm-email")
+    public ResponseEntity<?> confirmEmail(@RequestParam String streamerId, @RequestParam String token) {
+        SmtpResponseDTO result = authService.confirmEmail(token, streamerId);
 
         if (result.success()) {
             return ResponseEntity.ok(result);
@@ -40,14 +40,13 @@ public class EmailAuthController {
 
     @PostMapping("/resend-validation")
     public ResponseEntity<?> resendValidation(@RequestParam String email, @RequestParam String type) {
-        try {
-            // Converter manualmente
+        // Converter manualmente
             ValidationTypeEnum enumType;
             try {
                 enumType = ValidationTypeEnum.valueOf(type.toUpperCase());
             } catch (IllegalArgumentException e) {
                 return ResponseEntity.badRequest().body(
-                        new SmtpResponseDTO(false, "Tipo de validação inválido: " + type, null, -1, email));
+                        new SmtpResponseDTO(false, "Tipo de validação inválido: " + type, null, null, email));
             }
 
             // Buscar streamer pelo email
@@ -72,11 +71,6 @@ public class EmailAuthController {
                     response.getSuccess());
 
             return response.getSuccess() ? ResponseEntity.ok(result) : ResponseEntity.badRequest().body(result);
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    new SmtpResponseDTO(false, "Erro ao processar a solicitação", null, -1, email));
-        }
     }
 
     
@@ -93,7 +87,7 @@ public class EmailAuthController {
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    new SmtpResponseDTO(false, "Erro ao processar a solicitação", null, -1, ""));
+                    new SmtpResponseDTO(false, "Erro ao processar a solicitação", null, null, ""));
         }
     }
 }

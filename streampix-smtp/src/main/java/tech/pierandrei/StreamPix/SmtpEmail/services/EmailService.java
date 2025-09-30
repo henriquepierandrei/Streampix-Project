@@ -3,11 +3,9 @@ package tech.pierandrei.StreamPix.SmtpEmail.services;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-
 import java.io.UnsupportedEncodingException;
 
 @Service
@@ -25,24 +23,44 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
-    public void sendValidationEmail(String toEmail, String token, String userName) {
+    private String verifyType(String type) {
+        switch (type) {
+            case "account_activation":
+                return "Confirme seu email - StreamPix";
+            case "PASSWORD_RESET":
+                return "Redefinir senha - StreamPix";
+            case "EMAIL_CHANGE":
+                return "Confirmar mudança de email - StreamPix";
+            default:
+                return "Verificação - StreamPix";
+        }
+    }
+
+    public void sendValidationEmail(String toEmail, String token, String nickname, String type, String streamerId) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(toEmail);
             helper.setFrom(fromEmail, "StreamPix");
-            helper.setSubject("🎥 Confirme seu email - StreamPix");
 
-        String validationLink = frontendUrl + "/validate-email?token=" + token;
+            // Usa o método verifyType para definir o subject
+            String subject = verifyType(type);
+            helper.setSubject(subject);
 
-        String htmlBody = String.format("""
+            String validationLink = frontendUrl + "/email-auth/validate-email?streamerId=" + streamerId +"&token=" + token;
+
+            // Personaliza o conteúdo baseado no tipo
+            String welcomeMessage = getWelcomeMessage(type, nickname);
+            String buttonText = getButtonText(type);
+
+            String htmlBody = String.format("""
             <!DOCTYPE html>
             <html>
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Confirme seu email - StreamPix</title>
+                <title>%s</title>
             </head>
             <body style="margin: 0; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc; color: #334155;">
                 <div style="max-width: 500px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); overflow: hidden;">
@@ -54,14 +72,14 @@ public class EmailService {
                             StreamPix
                         </h1>
                         <h2 style="margin: 8px 0 0; font-size: 18px; font-weight: 500; color: #475569;">
-                            Confirme seu email
+                            %s
                         </h2>
                     </div>
                     
                     <!-- Content -->
                     <div style="padding: 32px 24px;">
                         <p style="margin: 0 0 20px; font-size: 16px; line-height: 1.5; color: #475569;">
-                            Bem-vindo ao StreamPix! Para completar seu cadastro, use o código abaixo:
+                            %s
                         </p>
                         
                         <!-- Verification Link Box -->
@@ -70,16 +88,16 @@ public class EmailService {
                                 Clique no botão abaixo para confirmar:
                             </p>
                             <a href="%s" style="display: inline-block; background-color: #6366f1; color: white; text-decoration: none; padding: 12px 28px; border-radius: 6px; font-size: 16px; font-weight: 600;">
-                                Confirmar Email
+                                %s
                             </a>
                         </div>
                         
                         <div style="margin: 24px 0 0; padding: 16px 0; border-top: 1px solid #e2e8f0;">
                             <p style="margin: 0 0 8px; font-size: 13px; color: #64748b;">
-                                Este código expira em 30 minutos.
+                                Este link expira em 30 minutos.
                             </p>
                             <p style="margin: 0; font-size: 13px; color: #64748b;">
-                                Se você não se cadastrou no StreamPix, ignore este email.
+                                Se você não fez esta solicitação, ignore este email.
                             </p>
                         </div>
                     </div>
@@ -96,13 +114,54 @@ public class EmailService {
                 </div>
             </body>
             </html>
-            """, validationLink);
+            """, subject, getHeaderTitle(type), welcomeMessage, validationLink, buttonText);
 
             helper.setText(htmlBody, true);
             mailSender.send(message);
-            
+
         } catch (MessagingException | UnsupportedEncodingException e) {
             throw new RuntimeException("Erro ao enviar email de validação: " + e.getMessage(), e);
+        }
+    }
+
+    private String getWelcomeMessage(String type, String nickname) {
+        String name = (nickname != null && !nickname.isEmpty()) ? nickname : "usuário";
+
+        switch (type) {
+            case "account_activation":
+                return String.format("Olá %s! Bem-vindo ao StreamPix! Para completar seu cadastro, confirme seu email:", name);
+            case "PASSWORD_RESET":
+                return String.format("Olá %s! Recebemos uma solicitação para redefinir sua senha:", name);
+            case "EMAIL_CHANGE":
+                return String.format("Olá %s! Para confirmar a mudança do seu email, clique no link abaixo:", name);
+            default:
+                return String.format("Olá %s! Para verificar seu email, clique no link abaixo:", name);
+        }
+    }
+
+    private String getButtonText(String type) {
+        switch (type) {
+            case "account_activation":
+                return "Confirmar Email";
+            case "PASSWORD_RESET":
+                return "Redefinir Senha";
+            case "EMAIL_CHANGE":
+                return "Confirmar Mudança";
+            default:
+                return "Verificar";
+        }
+    }
+
+    private String getHeaderTitle(String type) {
+        switch (type) {
+            case "account_activation":
+                return "Confirme seu email";
+            case "PASSWORD_RESET":
+                return "Redefinir senha";
+            case "EMAIL_CHANGE":
+                return "Confirmar mudança de email";
+            default:
+                return "Verificação";
         }
     }
 }

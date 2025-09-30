@@ -4,7 +4,7 @@ public class EmailValidationResponseDTO {
     private boolean success;
     private String message;
     private String token;
-    private long streamerId;
+    private String streamerId;
     private String email;
 
     public EmailValidationResponseDTO(boolean success, String message) {
@@ -12,7 +12,7 @@ public class EmailValidationResponseDTO {
         this.message = message;
     }
 
-    public EmailValidationResponseDTO(boolean success, String message, String token, long streamerId, String email) {
+    public EmailValidationResponseDTO(boolean success, String message, String token, String streamerId, String email) {
         this.success = success;
         this.message = message;
         this.token = token;
@@ -30,8 +30,8 @@ public class EmailValidationResponseDTO {
     public String getToken() { return token; }
     public void setToken(String token) { this.token = token; }
 
-    public long getStreamerId() { return streamerId; }
-    public void setStreamerId(long streamerId) { this.streamerId = streamerId; }
+    public String getStreamerId() { return streamerId; }
+    public void setStreamerId(String streamerId) { this.streamerId = streamerId; }
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }

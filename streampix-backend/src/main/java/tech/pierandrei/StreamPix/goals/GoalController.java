@@ -32,9 +32,9 @@ public class GoalController {
     }
 
     @GetMapping("/to-show")
-    public ResponseEntity<?> getGoalToShow(@RequestParam Long id) {
+    public ResponseEntity<?> getGoalToShow(@RequestParam String streamerId) {
         try {
-            var response = goalsService.getGoalToShow(id);
+            var response = goalsService.getGoalToShow(streamerId);
             log.debug("Streamer buscando a meta para exibir.");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -56,7 +56,7 @@ public class GoalController {
     // Para testes
     @PostMapping("/notify")
     public void notify(@RequestParam String name, @RequestParam double value) {
-        webSocketController.notifyGoalIncrement("UUID-HERE",1L , BigDecimal.valueOf(value));
+        webSocketController.notifyGoalIncrement("UUID-HERE",null , BigDecimal.valueOf(value));
     }
 
     // ================== PUT ==================

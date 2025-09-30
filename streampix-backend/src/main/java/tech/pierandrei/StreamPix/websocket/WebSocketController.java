@@ -142,7 +142,7 @@ public class WebSocketController {
     }
 
     // Adiciona a meta na fila
-    public void notifyGoalIncrement(String uuid, Long streamerId, BigDecimal finalBalance) {
+    public void notifyGoalIncrement(String uuid, String streamerId, BigDecimal finalBalance) {
         var goal = goalsRepository.findById(UUID.fromString(uuid))
                 .orElseThrow(() -> new GoalsException("Meta não encontrada!"));
 

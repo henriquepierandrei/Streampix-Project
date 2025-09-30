@@ -89,8 +89,8 @@ public class EmailValidationClient {
     }
 
     // Método para validar token
-    public EmailValidationResponseDTO validateToken(String token) {
-    String url = emailValidationBaseUrl + "/api/email-validation/validate?token=" + token;
+    public EmailValidationResponseDTO validateToken(String token, String streamerId ) {
+    String url = emailValidationBaseUrl + "/api/email-validation/validate?token=" + token + "&streamerId=" + streamerId;
     try {
         // Normalmente retorna 200 OK
         ResponseEntity<EmailValidationResponseDTO> response = restTemplate.getForEntity(

@@ -13,7 +13,7 @@ public class EmailValidationEntity {
     private Long id;
 
     @Column(name = "user_id", nullable = false)
-    private long userId;
+    private String userId;
 
     @Column(name = "email", nullable = false)
     private String email;
@@ -33,6 +33,10 @@ public class EmailValidationEntity {
     @Column(name = "validated_at")
     private LocalDateTime validatedAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "validation_type", nullable = false)
+    private ValidationType validationType;
+
     // Métodos utilitários
     public boolean isExpired() {
         return LocalDateTime.now().isAfter(this.expiresAt);
@@ -43,41 +47,108 @@ public class EmailValidationEntity {
         this.validatedAt = LocalDateTime.now();
     }
 
-    // Construtores
+    // Construtor base
     public EmailValidationEntity() {
-        this.token = UUID.randomUUID().toString();
         this.createdAt = LocalDateTime.now();
-        this.expiresAt = LocalDateTime.now().plusMinutes(30); // Expira em 30 minutos
+        this.expiresAt = LocalDateTime.now().plusMinutes(30); // Expira em 30 min
     }
 
-    public EmailValidationEntity(long userId, String email) {
-        this();
+    public EmailValidationEntity(String userId, String email) {
+        this(); // 🔥 garante que os campos obrigatórios sejam setados
         this.userId = userId;
         this.email = email;
     }
 
-    // Getters e Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public EmailValidationEntity(String userId, String email, ValidationType validationType) {
+        this(userId, email); // 🔥 reaproveita o anterior
+        this.validationType = validationType;
+    }
 
-    public long getUserId() { return userId; }
-    public void setUserId(long userId) { this.userId = userId; }
+    @PrePersist
+    protected void onCreate() {
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
+        if (this.expiresAt == null) {
+            this.expiresAt = LocalDateTime.now().plusMinutes(30);
+        }
+    }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public enum ValidationType {
+        ACCOUNT_ACTIVATION,
+        PASSWORD_RECOVERY,
+        EMAIL_CHANGE,
+    }
 
-    public String getToken() { return token; }
-    public void setToken(String token) { this.token = token; }
+    public Long getId() {
+        return id;
+    }
 
-    public Boolean getIsValidated() { return isValidated; }
-    public void setIsValidated(Boolean validated) { isValidated = validated; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public String getUserId() {
+        return userId;
+    }
 
-    public LocalDateTime getExpiresAt() { return expiresAt; }
-    public void setExpiresAt(LocalDateTime expiresAt) { this.expiresAt = expiresAt; }
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
-    public LocalDateTime getValidatedAt() { return validatedAt; }
-    public void setValidatedAt(LocalDateTime validatedAt) { this.validatedAt = validatedAt; }
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public Boolean getValidated() {
+        return isValidated;
+    }
+
+    public void setValidated(Boolean validated) {
+        isValidated = validated;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getExpiresAt() {
+        return expiresAt;
+    }
+
+    public void setExpiresAt(LocalDateTime expiresAt) {
+        this.expiresAt = expiresAt;
+    }
+
+    public LocalDateTime getValidatedAt() {
+        return validatedAt;
+    }
+
+    public void setValidatedAt(LocalDateTime validatedAt) {
+        this.validatedAt = validatedAt;
+    }
+
+    public ValidationType getValidationType() {
+        return validationType;
+    }
+
+    public void setValidationType(ValidationType validationType) {
+        this.validationType = validationType;
+    }
 }

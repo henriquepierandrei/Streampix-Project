@@ -201,17 +201,15 @@ public class AuthService {
      * Confirmar email e ativar conta
      */
     @Transactional
-    public SmtpResponseDTO confirmEmail(String token) {
+    public SmtpResponseDTO confirmEmail(String token, String streamerId) {
         try {
-            // Validar token no serviço SMTP - usando o DTO do serviço SMTP
-            EmailValidationResponseDTO response = emailValidationClient.validateToken(token);
-
-            if (response != null && response.getSuccess()) {
-                // Ativar conta do streamer usando o streamerId da resposta
-                Long streamerId = (response.getStreamerId());
-                StreamerEntity streamer = repository.findById(streamerId)
+            StreamerEntity streamer = repository.findById(streamerId)
                         .orElseThrow(() -> new RuntimeException("Streamer não encontrado"));
 
+            // Validar token no serviço SMTP - usando o DTO do serviço SMTP
+            EmailValidationResponseDTO response = emailValidationClient.validateToken(token, streamerId);
+
+            if (response != null && response.getSuccess()) {
                 // Ativar a conta
                 streamer.setIsAccountValid(true);
                 repository.saveAndFlush(streamer);
@@ -228,7 +226,7 @@ public class AuthService {
                         false,
                         response != null ? response.getMessage() : "Token inválido ou expirado",
                         token,
-                        -1,
+                        null,
                         null);
             }
 
@@ -237,7 +235,7 @@ public class AuthService {
                     false,
                     "Erro ao confirmar email: " + e.getMessage(),
                     token,
-                    -1,
+                    null,
                     null);
         }
     }
@@ -246,7 +244,7 @@ public class AuthService {
      * Método auxiliar para ativar conta (se precisar usar separadamente)
      */
     @Transactional
-    public void activateAccount(Long userId) {
+    public void activateAccount(String userId) {
         StreamerEntity streamer = repository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
