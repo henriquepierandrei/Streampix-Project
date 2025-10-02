@@ -158,7 +158,7 @@ public class AuthService {
         validateCredentials(dto);
 
         var newStreamer = new StreamerEntity(
-                dto.nickname(), 0.0, true, 5.0, 10, 100,
+                dto.nickname().toLowerCase(), 0.0, true, 5.0, 10, 100,
                 dto.email(), passwordEncoder.encode(dto.password()),
                 "ROLE_STREAMER", false, false, false, false);
         newStreamer.setIsAccountValid(false);

@@ -52,7 +52,7 @@ public class StreamerService {
         // Criar o DTO interno separado
         InfoStreamerDTO infoDTO = new InfoStreamerDTO(
                 info.getFullName(),
-                info.getCpf(),
+                secureCPF(info.getCpf()),
                 info.getProfileImageUrl(),
                 info.getLastAccess(),
                 info.getDateOfRegistration(),
@@ -161,7 +161,7 @@ public class StreamerService {
      * @return
      */
     public StreamerResponseDTO getStreamerByName(String nickname) {
-        var streamer = this.streamerRepository.findByNickname(nickname)
+        var streamer = this.streamerRepository.findByNickname(nickname.toLowerCase())
                 .orElseThrow(() -> new StreamerNotFoundException("Streamer não encontrado!"));
         return new StreamerResponseDTO(
                 streamer.getNickname(),
@@ -172,7 +172,7 @@ public class StreamerService {
     }
 
     public StreamerDTO getQrCodeTheme(String nickname) {
-        var streamer = streamerRepository.findByNickname(nickname)
+        var streamer = streamerRepository.findByNickname(nickname.toLowerCase())
                 .orElseThrow(() -> new StreamerNotFoundException("Streamer não encontrado!"));
 
         // Cria InfoStreamerDTO vazio, sem dados sensíveis
@@ -207,4 +207,26 @@ public class StreamerService {
         }
     }
 
+
+    private String secureCPF(String cpf) {
+    if (cpf == null || cpf.isEmpty()) {
+        return cpf;
+    }
+    
+    // Remove caracteres não numéricos
+    String cpfNumeros = cpf.replaceAll("[^0-9]", "");
+    
+    // Verifica se tem pelo menos 2 dígitos
+    if (cpfNumeros.length() < 2) {
+        return cpf;
+    }
+    
+    // Pega os últimos 2 dígitos
+    String ultimosDigitos = cpfNumeros.substring(cpfNumeros.length() - 2);
+    
+    // Cria a string com asteriscos
+    String asteriscos = "*".repeat(cpfNumeros.length() - 2);
+    
+    return asteriscos + ultimosDigitos;
+}
 }
